@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cloudesire.catwatcher.entities.Webapp;
 import com.cloudesire.catwatcher.services.TomcatManagerService;
 import com.cloudesire.catwatcher.services.impl.TomcatManagerServiceImpl;
 

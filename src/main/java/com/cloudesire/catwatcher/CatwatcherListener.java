@@ -14,6 +14,7 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cloudesire.catwatcher.entities.Webapp;
 import com.cloudesire.catwatcher.services.TomcatManagerService;
 import com.cloudesire.catwatcher.services.impl.TomcatManagerServiceImpl;
 
@@ -60,12 +61,12 @@ public class CatwatcherListener implements ServletContextListener
 
 	private Watcher watcher;
 	private long sleepTime = 180000;
-	private String username = "user";
-	private String password = "tomcat";
+	private String username = "";
+	private String password = "";
 	private String endpoint = "http://localhost:8080/manager/text";
 	private TomcatManagerService catService;
 	private static final Logger log = LoggerFactory.getLogger(CatwatcherListener.class);
-	private final String DEFAULT_CONFIG_FILE_PATH = "/etc/cloudesire/catwatcher.properties";
+	private final String DEFAULT_CONFIG_FILE_PATH = "/etc/catwatcher/catwatcher.properties";
 
 	@Override
 	public void contextDestroyed ( ServletContextEvent arg0 )

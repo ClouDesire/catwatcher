@@ -2,7 +2,7 @@ package com.cloudesire.catwatcher.services;
 
 import java.util.List;
 
-import com.cloudesire.catwatcher.Webapp;
+import com.cloudesire.catwatcher.entities.Webapp;
 
 public interface TomcatManagerService
 {

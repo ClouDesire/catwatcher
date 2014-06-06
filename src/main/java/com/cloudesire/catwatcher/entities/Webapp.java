@@ -1,4 +1,4 @@
-package com.cloudesire.catwatcher;
+package com.cloudesire.catwatcher.entities;
 
 public class Webapp
 {

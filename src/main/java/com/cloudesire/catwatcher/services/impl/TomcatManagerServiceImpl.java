@@ -37,7 +37,7 @@ import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cloudesire.catwatcher.Webapp;
+import com.cloudesire.catwatcher.entities.Webapp;
 import com.cloudesire.catwatcher.services.TomcatManagerService;
 import com.fasterxml.jackson.core.Base64Variants;
 
@@ -46,24 +46,24 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	private final String STATUS_STOPPED = "stopped";
 	private final String STATUS_RUNNING = "running";
 
-	private final String endPoint;
+	private final String endpoint;
 	private final String username;
 	private final String password;
 	private HttpClient httpClient;
 	private SSLContext ctx;
 	private final Logger log = LoggerFactory.getLogger(TomcatManagerServiceImpl.class);
 
-	public TomcatManagerServiceImpl(String endPoint, String username, String password) throws MalformedURLException
+	public TomcatManagerServiceImpl(String endpoint, String username, String password) throws MalformedURLException
 	{
 		this.username = username;
 		this.password = password;
-		this.endPoint = endPoint;
+		this.endpoint = endpoint;
 	}
 
 	@Override
 	public List<Webapp> listWebapps () throws Exception
 	{
-		URL url = new URL(endPoint + "/list");
+		URL url = new URL(endpoint + "/list");
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
 		HttpResponse response = execute(get);
@@ -75,7 +75,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	{
 		if (webapp.getStatus().equals(STATUS_RUNNING)) return true;
 		log.info("Starting webapp " + webapp.getName());
-		URL url = new URL(endPoint + "/start?path=/" + webapp.getName());
+		URL url = new URL(endpoint + "/start?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
 		return handleResult(get);
@@ -95,7 +95,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	{
 		if (webapp.getStatus().equals(STATUS_STOPPED)) return true;
 		log.info("Stopping webapp " + webapp.getName());
-		URL url = new URL(endPoint + "/stop?path=/" + webapp.getName());
+		URL url = new URL(endpoint + "/stop?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
 		return handleResult(get);
@@ -106,7 +106,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	public boolean undeployWebapp ( Webapp webapp ) throws Exception
 	{
 		log.info("undeploying webapp " + webapp.getName());
-		URL url = new URL(endPoint + "/undeploy?path=/" + webapp.getName());
+		URL url = new URL(endpoint + "/undeploy?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
 		return handleResult(get);
@@ -136,7 +136,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		if (httpClient == null)
 		{
 			PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
-			cm.closeIdleConnections(1, TimeUnit.SECONDS);
+			cm.closeIdleConnections(30, TimeUnit.SECONDS);
 			httpClient = new DefaultHttpClient(cm);
 			HttpParams params = httpClient.getParams();
 			params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000);
@@ -203,7 +203,10 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 			while ((line = reader.readLine()) != null)
 			{
 				Webapp webapp = null;
-				if ((webapp = parseLine(line)) != null) webapps.add(webapp);
+				if ((webapp = parseLine(line)) != null)
+                {
+                    webapps.add(webapp);
+                }
 			}
 			return webapps;
 		}
@@ -214,7 +217,9 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		if (headers != null)
 		{
 			for (String k : headers.keySet())
-				request.addHeader(k, headers.get(k));
+            {
+                request.addHeader(k, headers.get(k));
+            }
 		}
 		String authorization = "Basic";
 		String encoded = Base64Variants.MIME_NO_LINEFEEDS.encode((username + ":" + password).getBytes());
