@@ -8,7 +8,7 @@
 		</layout>
 	</appender>
 
-	<logger name="com.cloudesire" level="DEBUG" />
+	<logger name="com.cloudesire" level="INFO" />
 
     <!-- @Controllers  logs as spring -->
 	<logger name="org.springframework">
