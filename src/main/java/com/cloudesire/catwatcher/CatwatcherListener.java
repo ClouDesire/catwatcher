@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -24,7 +23,6 @@ public class CatwatcherListener implements ServletContextListener
 	{
 		long sleepTime;
 		private final TomcatManagerService catService;
-		private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
 		Watcher(long sleepTime, TomcatManagerService catService)
 		{
@@ -35,7 +33,7 @@ public class CatwatcherListener implements ServletContextListener
 		@Override
 		public void run ()
 		{
-			while (!shutdown.get() || !Thread.currentThread().isInterrupted())
+			while (!Thread.currentThread().isInterrupted())
 			{
 				try
 				{
@@ -49,11 +47,11 @@ public class CatwatcherListener implements ServletContextListener
 				} catch (InterruptedException e)
 				{
 					log.info("Shutdown sequence initiated");
-					shutdown.set(true);
+					break;
 				} catch (Exception e)
 				{
 					log.error("TomcatWatchService is not working properly, catwatcher service will stop..", e);
-					shutdown.set(true);
+					break;
 				}
 
 			}
@@ -77,7 +75,7 @@ public class CatwatcherListener implements ServletContextListener
 			watcher.interrupt();
 			try
 			{
-				watcher.wait(5000);
+				watcher.join(5000);
 			} catch (InterruptedException e)
 			{
 				log.warn("interrupted while waiting for watcher thread to terminate");
