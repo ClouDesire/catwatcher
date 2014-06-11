@@ -24,6 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -81,15 +82,6 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		return handleResult(get);
 	}
 
-	private boolean handleResult ( HttpGet get ) throws Exception, IOException
-	{
-		HttpResponse response = execute(get);
-		try (InputStream content = response.getEntity().getContent())
-		{
-			return IOUtils.toString(content, "UTF-8").contains("OK");
-		}
-	}
-
 	@Override
 	public boolean stopWebapp ( Webapp webapp ) throws Exception
 	{
@@ -112,7 +104,14 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		return handleResult(get);
 	}
 
-	private HttpResponse execute ( HttpUriRequest request ) throws Exception
+	private void checkError ( HttpResponse response ) throws Exception
+	{
+		int responseCode = response.getStatusLine().getStatusCode();
+		if (responseCode < 200 || responseCode >= 300) throw new Exception("RESPONSE: " + responseCode
+				+ " - ".concat(response.getStatusLine().getReasonPhrase()));
+	}
+
+	private HttpResponse execute ( HttpUriRequest request ) throws ClientProtocolException, IOException, Exception
 	{
 		log.debug(">>>> " + request.getRequestLine());
 		for (Header header : request.getAllHeaders())
@@ -127,11 +126,11 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		{
 			log.trace("<<<< " + header.getName() + ": " + header.getValue());
 		}
-
+		checkError(response);
 		return response;
 	}
 
-	private synchronized HttpClient getHttpClient () throws Exception
+	private synchronized HttpClient getHttpClient () throws KeyManagementException, NoSuchAlgorithmException
 	{
 		if (httpClient == null)
 		{
@@ -182,6 +181,15 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		return ctx;
 	}
 
+	private boolean handleResult ( HttpGet get ) throws Exception, IOException
+	{
+		HttpResponse response = execute(get);
+		try (InputStream content = response.getEntity().getContent())
+		{
+			return IOUtils.toString(content, "UTF-8").contains("OK");
+		}
+	}
+
 	private Webapp parseLine ( String line )
 	{
 		String[] parts = line.split(":");
@@ -194,7 +202,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 
 	private List<Webapp> parseResponse ( HttpResponse response ) throws IllegalStateException, IOException
 	{
-		if (response == null) return null;
+		if (response.getEntity() == null) return null;
 		try (InputStream content = response.getEntity().getContent())
 		{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(content));

@@ -34,7 +34,7 @@ public class CatwatcherListener implements ServletContextListener
 		@Override
 		public void run ()
 		{
-			while (!Thread.currentThread().isInterrupted())
+			while (!isInterrupted())
 			{
 				try
 				{
@@ -51,7 +51,9 @@ public class CatwatcherListener implements ServletContextListener
 					break;
 				} catch (Exception e)
 				{
-					log.error("TomcatWatchService is not working properly, catwatcher will stop..", e);
+					log.error(
+							"TomcatWatchService is not working properly, catwatcher will stop. Problem was: "
+									+ e.getMessage(), e);
 					break;
 				}
 
