@@ -1,6 +1,7 @@
 catwatcher
 ==========
 
+[![Build Status](https://travis-ci.org/ClouDesire/catwatcher.svg?branch=master)](https://travis-ci.org/ClouDesire/catwatcher)
 
 I am the watcher on the tomcats.
 
@@ -14,11 +15,15 @@ Catwatcher will watch your webapps, and try to (re)start them if they failed.
 
 (Tested on Tomcat 7)
 
-The Tomcat manager webapp should be available and running.
+The Tomcat manager webapp should be available on your tomcat server. On ubuntu it is sufficent to install the appropiates packages:
+
+```
+sudo apt-get install tomcat7 tomcat7-admin
+```
 
 ## Configuration
 
-Drop a properties file on */etc/catwatcher/catwatcher.properties*:
+Create a properties file on */etc/catwatcher/catwatcher.properties* with:
 ```
 username=user
 password=tomcat
@@ -26,7 +31,7 @@ endpoint=http://localhost:8080
 sleepTime=30000
 ```
 
-Username and password should be set in tomcat-users.xml:
+Username and password should be set on tomcat server in *tomcat-users.xml* (on Ubuntu */etc/tomcat7/tomcat-users.xml*):
 ```
 <user name="user" password="tomcat" roles="manager-script" />
 ```
