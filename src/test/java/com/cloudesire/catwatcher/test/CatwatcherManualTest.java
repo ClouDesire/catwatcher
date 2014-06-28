@@ -1,4 +1,4 @@
-package com.cloudesire.catwatcher;
+package com.cloudesire.catwatcher.test;
 
 import java.util.List;
 
@@ -9,9 +9,9 @@ import com.cloudesire.catwatcher.entities.Webapp;
 import com.cloudesire.catwatcher.services.TomcatManagerService;
 import com.cloudesire.catwatcher.services.impl.TomcatManagerServiceImpl;
 
-public class CatwatcherMainTest
+public class CatwatcherManualTest
 {
-	private static final Logger log = LoggerFactory.getLogger(CatwatcherMainTest.class);
+	private static final Logger log = LoggerFactory.getLogger(CatwatcherManualTest.class);
 
 	public static void main ( String[] args ) throws Exception
 	{

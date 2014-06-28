@@ -39,6 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cloudesire.catwatcher.entities.Webapp;
+import com.cloudesire.catwatcher.exceptions.AlreadyRunningWebappException;
+import com.cloudesire.catwatcher.exceptions.AlreadyStoppedWebappException;
 import com.cloudesire.catwatcher.services.TomcatManagerService;
 import com.fasterxml.jackson.core.Base64Variants;
 
@@ -74,23 +76,23 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	@Override
 	public boolean startWebapp ( Webapp webapp ) throws Exception
 	{
-		if (webapp.getStatus().equals(STATUS_RUNNING)) return true;
+		if (webapp.getStatus().equals(STATUS_RUNNING)) throw new AlreadyRunningWebappException(webapp);
 		log.info("Starting webapp " + webapp.getName());
 		URL url = new URL(endpoint + "/start?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
-		return handleResult(get);
+		return executeAndCheckIfSuccess(get);
 	}
 
 	@Override
 	public boolean stopWebapp ( Webapp webapp ) throws Exception
 	{
-		if (webapp.getStatus().equals(STATUS_STOPPED)) return true;
+		if (webapp.getStatus().equals(STATUS_STOPPED)) throw new AlreadyStoppedWebappException(webapp);
 		log.info("Stopping webapp " + webapp.getName());
 		URL url = new URL(endpoint + "/stop?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
-		return handleResult(get);
+		return executeAndCheckIfSuccess(get);
 
 	}
 
@@ -101,7 +103,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		URL url = new URL(endpoint + "/undeploy?path=/" + webapp.getName());
 		HttpGet get = new HttpGet(url.toURI());
 		setupMethod(get, null);
-		return handleResult(get);
+		return executeAndCheckIfSuccess(get);
 	}
 
 	private void checkError ( HttpResponse response ) throws Exception
@@ -181,7 +183,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		return ctx;
 	}
 
-	private boolean handleResult ( HttpGet get ) throws Exception, IOException
+	private boolean executeAndCheckIfSuccess ( HttpGet get ) throws Exception
 	{
 		HttpResponse response = execute(get);
 		try (InputStream content = response.getEntity().getContent())
@@ -190,13 +192,26 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		}
 	}
 
+    /**
+     * A single line usually consist of 4 token separated by a :
+     *
+     * OK - Listed applications for virtual host localhost
+     * /:running:0:ROOT
+     * /host-manager:running:0:/usr/share/tomcat7-admin/host-manager
+     * /manager:running:3:/usr/share/tomcat7-admin/manager
+     *
+     * @param line
+     * @return Webapp
+     */
 	private Webapp parseLine ( String line )
 	{
 		String[] parts = line.split(":");
 		if (parts.length != 4) return null;
 		Webapp webapp = new Webapp();
-		webapp.setName(parts[3]);
+		webapp.setPath(parts[0]);
 		webapp.setStatus(parts[1]);
+		webapp.setActiveSessions(Integer.parseInt(parts[2]));
+		webapp.setName(parts[3]);
 		return webapp;
 	}
 
