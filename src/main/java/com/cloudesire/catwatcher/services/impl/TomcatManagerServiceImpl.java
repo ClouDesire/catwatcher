@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -46,28 +48,45 @@ import com.fasterxml.jackson.core.Base64Variants;
 
 public class TomcatManagerServiceImpl implements TomcatManagerService
 {
-	private final String STATUS_STOPPED = "stopped";
-	private final String STATUS_RUNNING = "running";
+	private static final String MANAGER_PATH = "/manager/text";
+	private static final String LIST_PATH = "/list";
+	private static final String START_PATH = "/start?path=/";
+	private static final String STOP_PATH = "/stop?path=/";
+	private static final String UNDEPLOY_PATH = "/undeploy?path=/";
+	private static final String STATUS_STOPPED = "stopped";
+	private static final String STATUS_RUNNING = "running";
 
 	private final String endpoint;
 	private final String username;
 	private final String password;
+
 	private HttpClient httpClient;
 	private SSLContext ctx;
+
 	private final Logger log = LoggerFactory.getLogger(TomcatManagerServiceImpl.class);
 
 	public TomcatManagerServiceImpl(String endpoint, String username, String password) throws MalformedURLException
 	{
 		this.username = username;
 		this.password = password;
-		this.endpoint = endpoint;
+		this.endpoint = endpoint + MANAGER_PATH;
+	}
+
+	private URI buildURI (String path) throws MalformedURLException, URISyntaxException
+	{
+		return new URL(endpoint + path).toURI();
+	}
+
+	private HttpGet buildHttpGet (String url) throws MalformedURLException, URISyntaxException
+	{
+		HttpGet get = new HttpGet(buildURI(url));
+		return get;
 	}
 
 	@Override
 	public List<Webapp> listWebapps () throws Exception
 	{
-		URL url = new URL(endpoint + "/list");
-		HttpGet get = new HttpGet(url.toURI());
+		HttpGet get = buildHttpGet(LIST_PATH);
 		setupMethod(get, null);
 		HttpResponse response = execute(get);
 		return parseResponse(response);
@@ -78,8 +97,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	{
 		if (webapp.getStatus().equals(STATUS_RUNNING)) throw new AlreadyRunningWebappException(webapp);
 		log.info("Starting webapp " + webapp.getName());
-		URL url = new URL(endpoint + "/start?path=/" + webapp.getName());
-		HttpGet get = new HttpGet(url.toURI());
+		HttpGet get = buildHttpGet(START_PATH + webapp.getName());
 		setupMethod(get, null);
 		return executeAndCheckIfSuccess(get);
 	}
@@ -89,8 +107,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	{
 		if (webapp.getStatus().equals(STATUS_STOPPED)) throw new AlreadyStoppedWebappException(webapp);
 		log.info("Stopping webapp " + webapp.getName());
-		URL url = new URL(endpoint + "/stop?path=/" + webapp.getName());
-		HttpGet get = new HttpGet(url.toURI());
+		HttpGet get = buildHttpGet(STOP_PATH + webapp.getName());
 		setupMethod(get, null);
 		return executeAndCheckIfSuccess(get);
 
@@ -100,8 +117,7 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	public boolean undeployWebapp ( Webapp webapp ) throws Exception
 	{
 		log.info("undeploying webapp " + webapp.getName());
-		URL url = new URL(endpoint + "/undeploy?path=/" + webapp.getName());
-		HttpGet get = new HttpGet(url.toURI());
+		HttpGet get = buildHttpGet(UNDEPLOY_PATH + webapp.getName());
 		setupMethod(get, null);
 		return executeAndCheckIfSuccess(get);
 	}
@@ -109,7 +125,8 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	private void checkError ( HttpResponse response ) throws Exception
 	{
 		int responseCode = response.getStatusLine().getStatusCode();
-		if (responseCode < 200 || responseCode >= 300) throw new Exception("RESPONSE: " + responseCode
+		if (responseCode < 200 || responseCode >= 300)
+			throw new Exception("RESPONSE: " + responseCode
 				+ " - ".concat(response.getStatusLine().getReasonPhrase()));
 	}
 
@@ -192,17 +209,16 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		}
 	}
 
-    /**
-     * A single line usually consist of 4 token separated by a :
-     *
-     * OK - Listed applications for virtual host localhost
-     * /:running:0:ROOT
-     * /host-manager:running:0:/usr/share/tomcat7-admin/host-manager
-     * /manager:running:3:/usr/share/tomcat7-admin/manager
-     *
-     * @param line
-     * @return Webapp
-     */
+	/**
+	 * A single line usually consist of 4 token separated by a :
+	 *
+	 * OK - Listed applications for virtual host localhost /:running:0:ROOT
+	 * /host-manager:running:0:/usr/share/tomcat7-admin/host-manager
+	 * /manager:running:3:/usr/share/tomcat7-admin/manager
+	 *
+	 * @param line
+	 * @return Webapp
+	 */
 	private Webapp parseLine ( String line )
 	{
 		String[] parts = line.split(":");
@@ -227,9 +243,9 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 			{
 				Webapp webapp = null;
 				if ((webapp = parseLine(line)) != null)
-                {
-                    webapps.add(webapp);
-                }
+				{
+					webapps.add(webapp);
+				}
 			}
 			return webapps;
 		}
@@ -240,9 +256,9 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		if (headers != null)
 		{
 			for (String k : headers.keySet())
-            {
-                request.addHeader(k, headers.get(k));
-            }
+			{
+				request.addHeader(k, headers.get(k));
+			}
 		}
 		String authorization = "Basic";
 		String encoded = Base64Variants.MIME_NO_LINEFEEDS.encode((username + ":" + password).getBytes());

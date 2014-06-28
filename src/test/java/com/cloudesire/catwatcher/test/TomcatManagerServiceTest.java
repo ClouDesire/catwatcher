@@ -30,7 +30,7 @@ public class TomcatManagerServiceTest
     public void setUp () throws Exception
     {
         LocalTestServer server = new LocalTestServer(null, null);
-        server.register("/manager/*", new HttpRequestHandler()
+        server.register("/manager/text/*", new HttpRequestHandler()
         {
 
             @Override
