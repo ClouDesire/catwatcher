@@ -22,7 +22,7 @@ Drop a properties file on */etc/catwatcher/catwatcher.properties*:
 ```
 username=user
 password=tomcat
-endpoint=http://localhost:8080/manager/text
+endpoint=http://localhost:8080
 sleepTime=30000
 ```
 
