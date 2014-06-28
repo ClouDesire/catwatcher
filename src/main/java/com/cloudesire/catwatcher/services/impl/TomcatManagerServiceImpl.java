@@ -10,17 +10,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -28,15 +20,12 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +50,6 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	private final String password;
 
 	private HttpClient httpClient;
-	private SSLContext ctx;
 
 	private final Logger log = LoggerFactory.getLogger(TomcatManagerServiceImpl.class);
 
@@ -153,51 +141,12 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	{
 		if (httpClient == null)
 		{
-			PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
-			cm.closeIdleConnections(30, TimeUnit.SECONDS);
-			httpClient = new DefaultHttpClient(cm);
-			HttpParams params = httpClient.getParams();
-			params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000);
-			params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000);
-
-			log.debug("Configuring HTTPS with no validation!");
-			SSLSocketFactory sf = new SSLSocketFactory(getSSLContext(), new AllowAllHostnameVerifier());
-			Scheme https = new Scheme("https", 443, sf);
-			httpClient.getConnectionManager().getSchemeRegistry().register(https);
-
+			HttpClientConnectionManager cm = new BasicHttpClientConnectionManager();
+			RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(60).setConnectionRequestTimeout(60).build();
+			httpClient = HttpClientBuilder.create().setConnectionManager(cm).setDefaultRequestConfig(requestConfig).build();
 		}
 
 		return httpClient;
-	}
-
-	private SSLContext getSSLContext () throws NoSuchAlgorithmException, KeyManagementException
-	{
-		if (ctx != null) return ctx;
-		log.debug("Creating SSL context with no certificate validation");
-		ctx = SSLContext.getInstance("SSL");
-		TrustManager tm = new X509TrustManager()
-		{
-
-			@Override
-			public void checkClientTrusted ( X509Certificate[] arg0, String arg1 ) throws CertificateException
-			{
-
-			}
-
-			@Override
-			public void checkServerTrusted ( X509Certificate[] arg0, String arg1 ) throws CertificateException
-			{
-
-			}
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers ()
-			{
-				return null;
-			}
-		};
-		ctx.init(null, new TrustManager[] { tm }, new SecureRandom());
-		return ctx;
 	}
 
 	private boolean executeAndCheckIfSuccess ( HttpGet get ) throws Exception
