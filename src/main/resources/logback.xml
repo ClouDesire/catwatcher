@@ -3,29 +3,12 @@
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>%d{HH:mm:ss.SSS} CMW [%thread] %-5level %logger{36} - %msg%n
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
 			</Pattern>
 		</layout>
 	</appender>
 
 	<logger name="com.cloudesire" level="INFO" />
-
-    <!-- @Controllers  logs as spring -->
-	<logger name="org.springframework">
-		<level value="INFO" />
-	</logger>
-
-	<logger name="org.hibernate">
-		<level value="INFO" />
-	</logger> 
-	
-<!-- 	<logger name="org.hibernate.SQL"> -->
-<!-- 		<level value="DEBUG" /> -->
-<!-- 	</logger> -->
-	
-<!-- 	<logger name="org.hibernate.type"> -->
-<!--     	<level value="TRACE" /> -->
-<!-- 	</logger> -->
 
 	<root level="info">
 		<appender-ref ref="STDOUT" />
