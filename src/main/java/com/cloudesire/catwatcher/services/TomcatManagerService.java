@@ -8,6 +8,8 @@ public interface TomcatManagerService
 {
 	List<Webapp> listWebapps () throws Exception;
 
+	List<Webapp> listStoppedWebapps () throws Exception;
+
 	boolean startWebapp ( Webapp webapp ) throws Exception;
 
 	boolean stopWebapp ( Webapp webapp ) throws Exception;

@@ -42,8 +42,8 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 	private static final String START_PATH = "/start?path=/";
 	private static final String STOP_PATH = "/stop?path=/";
 	private static final String UNDEPLOY_PATH = "/undeploy?path=/";
-	private static final String STATUS_STOPPED = "stopped";
-	private static final String STATUS_RUNNING = "running";
+	public static final String STATUS_STOPPED = "stopped";
+	public static final String STATUS_RUNNING = "running";
 
 	private final String endpoint;
 	private final String username;
@@ -78,6 +78,31 @@ public class TomcatManagerServiceImpl implements TomcatManagerService
 		setupMethod(get, null);
 		HttpResponse response = execute(get);
 		return parseResponse(response);
+	}
+
+	@Override
+	public List<Webapp> listStoppedWebapps () throws Exception
+	{
+		List<Webapp> webapps = listWebapps();
+		filterStopped(webapps);
+		return webapps;
+	}
+
+	private void filterStopped ( List<Webapp> webapps )
+	{
+		int i = 0;
+		while (i < webapps.size())
+		{
+			Webapp webapp = webapps.get(i);
+			if (webapp.getStatus().equals(STATUS_RUNNING))
+			{
+				webapps.remove(i);
+			}
+			else
+			{
+				i++;
+			}
+		}
 	}
 
 	@Override

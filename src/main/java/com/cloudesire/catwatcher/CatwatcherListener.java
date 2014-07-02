@@ -38,8 +38,8 @@ public class CatwatcherListener implements ServletContextListener
 			{
 				try
 				{
-					sleep(sleepTime);
-					List<Webapp> webapps = catService.listWebapps();
+					sleep(sleepTime * 1000);
+					List<Webapp> webapps = catService.listStoppedWebapps();
 					for (Webapp webapp : webapps)
 					{
 						catService.startWebapp(webapp);
@@ -62,10 +62,10 @@ public class CatwatcherListener implements ServletContextListener
 	}
 
 	private Watcher watcher;
-	private long sleepTime = 180000;
+	private int sleepTime = 180;
 	private String username = "";
 	private String password = "";
-	private String endpoint = "http://localhost:8080/manager/text";
+	private String endpoint = "http://localhost:8080";
 	private TomcatManagerService catService;
 	private static final Logger log = LoggerFactory.getLogger(CatwatcherListener.class);
 	private final String DEFAULT_CONFIG_FILE_PATH = "/etc/catwatcher/catwatcher.properties";
@@ -90,8 +90,8 @@ public class CatwatcherListener implements ServletContextListener
 	@Override
 	public void contextInitialized ( ServletContextEvent arg0 )
 	{
-		log.info("Catwatcher service starting..");
 		setupTomcatWatcher();
+		log.info("Catwatcher service starting for {} with user {} and polling {}", endpoint, username, sleepTime);
 		try
 		{
 			catService = new TomcatManagerServiceImpl(endpoint, username, password);
@@ -113,7 +113,7 @@ public class CatwatcherListener implements ServletContextListener
 		this.password = password;
 	}
 
-	public void setSleepTime ( long sleepTime )
+	public void setSleepTime ( int sleepTime )
 	{
 		this.sleepTime = sleepTime;
 	}
@@ -133,8 +133,8 @@ public class CatwatcherListener implements ServletContextListener
 		{
 			log.warn("Could not find specified configuration file " + DEFAULT_CONFIG_FILE_PATH
 					+ " using default configuration..");
+			return this.getClass().getClassLoader().getResourceAsStream("catwatcher.properties");
 		}
-		return null;
 	}
 
 	private void setupTomcatWatcher ()
@@ -146,10 +146,10 @@ public class CatwatcherListener implements ServletContextListener
 				if (configStream == null) return;
 				Properties props = new Properties();
 				props.load(configStream);
-				username = props.getProperty("username");
-				password = props.getProperty("password");
-				endpoint = props.getProperty("endpoint");
-				sleepTime = Long.valueOf(props.getProperty("sleepTime"));
+				this.username = props.getProperty("username");
+				this.password = props.getProperty("password");
+				this.endpoint = props.getProperty("endpoint");
+				this.sleepTime = Integer.parseInt(props.getProperty("sleepTime"));
 			}
 		} catch (IOException e)
 		{
