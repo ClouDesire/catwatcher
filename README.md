@@ -3,22 +3,33 @@ catwatcher
 
 [![Build Status](https://travis-ci.org/ClouDesire/catwatcher.svg?branch=master)](https://travis-ci.org/ClouDesire/catwatcher)
 
-I am the watcher on the tomcats.
+I am the watcher of the tomcats.
 
-Just put me on a running tomcat and I will take care of stopped webapps.
+Catwatcher is a web application mean to be run on tomcat webservers (local or even remotew), that uses the tomcat-manager API (yeah, a sort of) to monitor che status of every running webapp, and automatically try to restart them if, for some reason, they fails.
 
-My greateness arise especially on cloud infrastructures, when instances can reboot everytime and come again up at unexpected times (especially database servers), and you don't want a borked webapps with a bootup Context failed and not responding.
+A lot of problems may arise especially on highly dynamic cloud infrastructures, when instances can [reboot everytime](http://blogs.msdn.com/b/wats/archive/2013/09/24/windows-azure-virtual-machine-restarted-or-shutdown-with-out-any-notification.aspx) and come again up unpredictably.
+A common pitfall is that the database VM takes more time to startup rather than the application server, and then the application server will inevitably fails since it can't connect to the configured database server. In such situation, you need to manually try to re-deploy the web application or setup some complex active monitoring system.
 
-Catwatcher will watch your webapps, and try to (re)start them if they failed.
+Catwatcher is a set-and-forget solution that once deployed will watch your running webapps, and try to (re-)start them if failed for whatever reason.
+
+## Install
+
+Catwatcher is packaged as war, and you can download it also from maven central or directly from [here](https://github.com/ClouDesire/catwatcher/releases/download/v1.0.0/catwatcher-1.0.0.war).
+
+```
+<dependency>
+    <groupId>com.cloudesire.catwatcher</groupId>
+    <artifactId>catwatcher</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 ## Requirements
 
-(Tested on Tomcat 7)
-
-The Tomcat manager webapp should be available on your tomcat server. On ubuntu it is sufficent to install the appropiates packages:
+This webapp depends on the tomcat-manager webapp, that should be available and deployed on the tomcat server you want to watch. On ubuntu it is sufficent to install the appropiate package:
 
 ```
-sudo apt-get install tomcat7 tomcat7-admin
+sudo apt-get install tomcat7-admin
 ```
 
 ## Configuration
