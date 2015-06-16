@@ -39,7 +39,7 @@ Create a properties file on */etc/catwatcher/catwatcher.properties* with:
 username=user
 password=tomcat
 endpoint=http://localhost:8080
-sleepTime=30000
+sleepTime=30
 ```
 
 Username and password should be set on tomcat server in *tomcat-users.xml* (on Ubuntu */etc/tomcat7/tomcat-users.xml*):
