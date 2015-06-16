@@ -5,7 +5,7 @@ catwatcher
 
 I am the watcher of the tomcats.
 
-Catwatcher is a web application mean to be run on tomcat webservers (local or even remotew), that uses the tomcat-manager API (yeah, a sort of) to monitor che status of every running webapp, and automatically try to restart them if, for some reason, they fails.
+Catwatcher is a web application mean to be run on tomcat webservers (local or even remote), that uses the tomcat-manager API (yeah, a sort of) to monitor che status of every running webapp, and automatically try to restart them if, for some reason, they fails.
 
 A lot of problems may arise especially on highly dynamic cloud infrastructures, when instances can [reboot everytime](http://blogs.msdn.com/b/wats/archive/2013/09/24/windows-azure-virtual-machine-restarted-or-shutdown-with-out-any-notification.aspx) and come again up unpredictably.
 A common pitfall is that the database VM takes more time to startup rather than the application server, and then the application server will inevitably fails since it can't connect to the configured database server. In such situation, you need to manually try to re-deploy the web application or setup some complex active monitoring system.
