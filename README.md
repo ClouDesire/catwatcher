@@ -12,7 +12,15 @@ A common pitfall is that the database VM takes more time to startup rather than 
 
 Catwatcher is a set-and-forget solution that once deployed will watch your running webapps, and try to (re-)start them if failed for whatever reason.
 
-## Install
+## Docker image
+
+This catwatcher image is based on [cloudesire/tomcat:7.0-jre8](https://registry.hub.docker.com/u/cloudesire/tomcat/).
+
+Run with:
+
+    docker run -p 8080:8080 cloudesire/catwatcher
+
+## Install manually
 
 Catwatcher is packaged as war, and you can download it also from maven central or directly from [here](https://github.com/ClouDesire/catwatcher/releases/download/v1.0.0/catwatcher-1.0.0.war).
 
