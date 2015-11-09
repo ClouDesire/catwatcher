@@ -1,4 +1,4 @@
-FROM cloudesire/tomcat:7-jre8
+FROM %BASE_IMAGE%
 MAINTAINER ClouDesire <dev@cloudesire.com>
 
 ADD ./target/catwatcher-*.war /tomcat/webapps/catwatcher.war
