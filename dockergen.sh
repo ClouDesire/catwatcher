@@ -4,6 +4,8 @@ if [ -z $BUILD_NUMBER ]; then
     exit 1
 fi
 
+docker login -e "jenkins@cloudesire.com" -u $PUBLIC_REGISTRY_USERNAME -p $PUBLIC_REGISTRY_PASSWORD
+
 IMAGES=(
   7-jre7
   7-jre8
@@ -27,7 +29,6 @@ do
 
   # Build and push docker image
   docker build --no-cache --force-rm -t $BUILD_VERSION -f Dockerfile-$IMAGE .
-  docker login -e "jenkins@cloudesire.com" -u $PUBLIC_REGISTRY_USERNAME -p $PUBLIC_REGISTRY_PASSWORD
   docker push $BUILD_VERSION
   docker tag -f $BUILD_VERSION $BUILD_LATEST
   docker push $BUILD_LATEST
