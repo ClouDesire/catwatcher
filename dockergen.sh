@@ -28,7 +28,7 @@ do
   docker pull $BASE_IMAGE
 
   # Build and push docker image
-  docker build --no-cache --force-rm -t $BUILD_VERSION -f Dockerfile-$IMAGE .
+  docker build --pull --no-cache --force-rm -t $BUILD_VERSION -f Dockerfile-$IMAGE .
   docker push $BUILD_VERSION
   docker tag -f $BUILD_VERSION $BUILD_LATEST
   docker push $BUILD_LATEST
