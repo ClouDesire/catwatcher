@@ -22,7 +22,7 @@ do
 
   # Generate proper FROM image
   BASE_IMAGE="cloudesire/tomcat:${IMAGE}"
-  sed s,%BASE_IMAGE%,'$BASE_IMAGE', Dockerfile.gen > Dockerfile-$IMAGE
+  sed s,%BASE_IMAGE%,$BASE_IMAGE, Dockerfile.gen > Dockerfile-$IMAGE
 
   # Pull upstream
   docker pull $BASE_IMAGE
