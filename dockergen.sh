@@ -19,7 +19,11 @@ do
   BUILD_LATEST=$BASE_NAME:$IMAGE-latest
 
   # Generate proper FROM image
-  sed s/%BASE_IMAGE%/"cloudesire\/tomcat:${IMAGE}"/ Dockerfile.gen > Dockerfile-$IMAGE
+  BASE_IMAGE="cloudesire\/tomcat:${IMAGE}"
+  sed s/%BASE_IMAGE%/$BASE_IMAGE/ Dockerfile.gen > Dockerfile-$IMAGE
+
+  # Pull upstream
+  docker pull $BASE_IMAGE
 
   # Build and push docker image
   docker build --no-cache --force-rm -t $BUILD_VERSION -f Dockerfile-$IMAGE .
