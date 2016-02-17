@@ -43,7 +43,8 @@
 		<gpg.skip>true</gpg.skip>
 	</properties>
 
-	<build>
+    <build>
+        <finalName>catwatcher</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>

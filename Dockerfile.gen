@@ -1,7 +1,7 @@
 FROM %BASE_IMAGE%
 MAINTAINER ClouDesire <dev@cloudesire.com>
 
-ADD ./target/catwatcher-*.war /tomcat/webapps/catwatcher.war
+ADD ./target/catwatcher /tomcat/webapps/catwatcher
 ADD ./docker/run.sh /run.sh
 
 CMD ["/run.sh"]
