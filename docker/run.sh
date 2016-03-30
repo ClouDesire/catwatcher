@@ -9,5 +9,4 @@ endpoint=http://localhost:8080
 sleepTime=30" > /etc/catwatcher/catwatcher.properties
 fi
 
-exec ${CATALINA_HOME}/bin/catalina.sh run
-
+exec /tomcat-run.sh

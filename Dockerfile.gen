@@ -2,6 +2,7 @@ FROM %BASE_IMAGE%
 MAINTAINER ClouDesire <dev@cloudesire.com>
 
 ADD ./target/catwatcher /tomcat/webapps/catwatcher
+RUN cp /run.sh /tomcat-run.sh
 ADD ./docker/run.sh /run.sh
 
 CMD ["/run.sh"]
