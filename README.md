@@ -1,7 +1,7 @@
 catwatcher
 ==========
 
-[![Build Status](https://travis-ci.org/ClouDesire/catwatcher.svg?branch=master)](https://travis-ci.org/ClouDesire/catwatcher)
+[![CircleCI](https://circleci.com/gh/ClouDesire/catwatcher.svg?style=svg)](https://circleci.com/gh/ClouDesire/catwatcher)
 
 I am the watcher of the tomcats.
 
