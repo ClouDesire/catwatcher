@@ -1,10 +1,10 @@
-#!/bin/bash -exu
+#!/bin/bash -eu
 if [ -z $BUILD_NUMBER ]; then
     echo This should run under jenkins only
     exit 1
 fi
 
-docker login -e "jenkins@cloudesire.com" -u $PUBLIC_REGISTRY_USERNAME -p $PUBLIC_REGISTRY_PASSWORD
+docker login -e "circleci@cloudesire.com" -u $PUBLIC_REGISTRY_USERNAME -p $PUBLIC_REGISTRY_PASSWORD
 
 IMAGES=(
   7-jre7
