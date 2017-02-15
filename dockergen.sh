@@ -1,8 +1,5 @@
 #!/bin/bash -eu
-if [ -z $BUILD_NUMBER ]; then
-    echo This should run under jenkins only
-    exit 1
-fi
+BUILD_NUMBER=$((1000 + $CIRCLE_BUILD_NUM))
 
 docker login -e "circleci@cloudesire.com" -u $PUBLIC_REGISTRY_USERNAME -p $PUBLIC_REGISTRY_PASSWORD
 
@@ -28,9 +25,8 @@ do
   docker pull $BASE_IMAGE
 
   # Build and push docker image
-  docker build --pull --no-cache --force-rm -t $BUILD_VERSION -f Dockerfile-$IMAGE .
+  docker build --pull --rm=false -t $BUILD_VERSION -f Dockerfile-$IMAGE .
   docker push $BUILD_VERSION
   docker tag -f $BUILD_VERSION $BUILD_LATEST
   docker push $BUILD_LATEST
-  docker rmi $BUILD_VERSION $BUILD_LATEST
 done
