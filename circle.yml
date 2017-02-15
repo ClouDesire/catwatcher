@@ -1,0 +1,9 @@
+machine:
+  java:
+    version: openjdk7
+
+deployment:
+  docker:
+    branch: master
+    commands:
+      - ./dockergen.sh
